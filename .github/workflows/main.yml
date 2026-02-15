@@ -1,41 +1,22 @@
 name: Build Installer
-
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   build-windows:
     runs-on: windows-latest
-    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
-      - name: Check files
-        run: |
-          dir
-          type package.json
-      
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
         env:
           npm_config_build_from_source: false
-      
-      - name: Build app
-        run: npm run build
-      
-      - name: Create installer
-        run: npm run electron:build:win
-      
-      - name: Upload installer
-        uses: actions/upload-artifact@v3
+      - run: npm run build
+      - run: npm run electron:build:win
+      - uses: actions/upload-artifact@v3
         with:
-          name: Windows-Installer
+          name: Installer
           path: release/*.exe
