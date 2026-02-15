@@ -1,22 +1,47 @@
 name: Build Installer
+
 on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   build-windows:
     runs-on: windows-latest
+    
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: npm install
+      
+      - name: Check files
+        run: |
+          dir
+          if (Test-Path package.json) {
+            type package.json
+          } else {
+            echo "ERROR: package.json not found!"
+            exit 1
+          }
+        shell: pwsh
+      
+      - name: Install dependencies
+        run: npm install
         env:
           npm_config_build_from_source: false
-      - run: npm run build
-      - run: npm run electron:build:win
-      - uses: actions/upload-artifact@v3
+      
+      - name: Build app
+        run: npm run build
+      
+      - name: Create installer
+        run: npm run electron:build:win
+      
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
         with:
-          name: Installer
+          name: Windows-Installer
           path: release/*.exe
